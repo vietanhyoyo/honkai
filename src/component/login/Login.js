@@ -3,8 +3,11 @@ import React from 'react';
 import styles from './style'
 import logo from '../../../asset/image/logo_01.png';
 import { useState } from 'react';
+import { AuthorContext } from '../../App'
 
 export default function Login({ navigation }) {
+
+    const author = React.useContext(AuthorContext);
 
     const [account, setAccount] = useState({
         username: '',
@@ -24,8 +27,9 @@ export default function Login({ navigation }) {
         })
             .then(response => response.json())
             .then(json => {
-                console.log(json)
+                //console.log(json);
                 if (json.status) {
+                    author.setAuthor({access_token: json.data.access_token})
                     navigation.navigate('Home');
                 }
                 else {

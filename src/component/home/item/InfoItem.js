@@ -3,9 +3,10 @@ import color from '../../../../asset/color/color';
 import Icon from 'react-native-vector-icons/Entypo';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-    
+
     element: {
         width: '100%',
         justifyContent: 'space-between',
@@ -46,23 +47,48 @@ const styles = StyleSheet.create({
 
 })
 
-import { StyleSheet } from 'react-native';
 
-export default function InfoItem() {
+
+
+function getFormattedDate(int) {
+
+    let date = new Date(int);
+    let year = date.getFullYear();
+    let month = (1 + date.getMonth()).toString();
+    month = month.length > 1 ? month : "0" + month;
+    let day = date.getDate().toString();
+    day = day.length > 1 ? day : "0" + day;
+    let hours = date.getHours();
+    hours = hours >= 10 ? hours : "0" + hours;
+    let minutes = date.getMinutes();
+    minutes = minutes >= 10 ? minutes : "0" + minutes;
+    return day + "/" + month + "/" + year + ' ' + hours + ':' + minutes;
+}
+
+export default function InfoItem(props) {
+
+    const date = props.reportTime !== undefined ? props.reportTime : 0;
+
     return (
         <View style={styles.element}>
             <View style={styles.elementleft}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Text style={styles.mayr}>MAYR-24-00064</Text>
+                    <Text style={styles.mayr}>
+                        {props.reportNo !== undefined && props.reportNo}
+                    </Text>
                     <View style={{ paddingHorizontal: 10 }}>
                         <Text style={styles.minitext}>Phân tích</Text>
                     </View>
                 </View>
                 <View>
-                    <Text style={styles.date}>19/02/2021 11:51</Text>
+                    <Text style={styles.date}>
+                        {props.reportTime !== undefined && getFormattedDate(date)}
+                    </Text>
                 </View>
                 <View><Text>Tự nguyện | Trang thiết bị/cơ sở hạ tầng</Text></View>
-                <View><Text>Tôi là người đứng đầu tổ chức Haaaa
+                <View><Text>{props.reporterName !== undefined && props.reporterName}
+                </Text></View>
+                <View><Text>{props.detailDescription !== undefined && props.detailDescription}
                 </Text></View>
             </View>
             <View style={styles.elementright}>
