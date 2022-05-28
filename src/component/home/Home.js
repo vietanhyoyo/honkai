@@ -5,7 +5,7 @@ import styles from './style';
 import Menu from '../menu/Menu';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import color from '../../../asset/color/color';
-
+import { connect } from 'react-redux';
 import { useState, useEffect, useContext } from 'react';
 import { AuthorContext } from '../../App'
 import FormDate from './item/FormDate';
@@ -20,8 +20,9 @@ function getFormattedDate(date) {
     return day + "/" + month + "/" + year;
 }
 
-export default function Home({ navigation }) {
+function Home(props) {
 
+    console.log(props.dataAPI);
     //Thông tin đăng nhập
     const author = useContext(AuthorContext);
     //Lọc ngày bắt đầu
@@ -40,31 +41,7 @@ export default function Home({ navigation }) {
             departmentName: "000",
             id: "16085401907418"
         }],
-        data2: [{
-            affectedToOrganization: null,
-            affectedToPatient: null, affectedToPatientCause: null,
-            affectedToPatientCauseDetail: null, analyzePhotoUrls: null,
-            appliedTreatment: null, byHospital: null, byHospitalSource: null, "causeGroup": null,
-            causeGroupDetail: null, coordinatedStaff: null, coordinatedStaffName: null,
-            coordinatedStaffTitle: null, createTime: 1651858604, createUser: "ji59mCSODXVeIaikEM9m",
-            departmentName: "Nhân sự", detailDescription: "sadas", detailPlace: null,
-            detailRecommendation: null, detectionResult: null,
-            detector: "Nguyễn Anh Kiện", detectorTitle: null, firstAffectValuation: "0",
-            firstClassification: "0", firstSuggestedSolution: null, firstTreatment: null,
-            fitWithRecommendRule: null, hasSuggestedSolution: null,
-            id: "16518586043529", implementPlan: null, inchargedStaff: null, inchargedStaffName: null,
-            inchargedStaffTitle: null, incidentObject: "3", incidentPlace: "Hdt39VlXlGjNYt3837mX", incidentType: null,
-            incidentTypeDetail: null, levelReport: null, objectBirthday: null, objectDepartment: null,
-            objectGender: "0", objectMedicalRecordNo: null, objectName: null, organizationId: "3y2ueC1kG99O9DS4ejwy",
-            photoUrls: null, recoverAction: null, reportNo: "MAYR-22-00071", reportTime: 1651858600, reportType: "0",
-            reportedToDocument: "0", reportedToPatien: "0", reportedToPersonInCharge: "0", reportedToRelative: "0",
-            reporter: "ji59mCSODXVeIaikEM9m", reporterEmail: "nakien.it@gmail.com", reporterName: "Nguyễn Anh Kiện",
-            reporterPhone: "0942964316", scheduleFinishDate: null, shortDescription: "sadas",
-            status: "0", suggestedSolution: null,
-            titleNote: null, updateTime: 1653439314, updateUser: "hGb5GCTn2O9hiXNm5WKQ",
-            witnessName1: null,
-            witnessName2: null
-        }]
+        data2: props.dataAPI
     });
 
     useEffect(() => {
@@ -102,13 +79,18 @@ export default function Home({ navigation }) {
             })
                 .then(response => response.json())
                 .then(json => {
-                    setDatas(prev => ({
-                        ...prev, data2: json.data.data
-                    }))
+                    //Cập nhật lại Redux
+                    props.updateData(json.data.data);
                 })
                 .catch(err => console.log(err));
         }
-    }, [author.author.access_token])
+    }, [author.author.access_token]);
+
+    useEffect(() => {
+        setDatas(prev => ({
+            ...prev, data2: props.dataAPI
+        }))
+    }, [props.dataAPI])
 
 
     return (
@@ -176,3 +158,17 @@ export default function Home({ navigation }) {
         </View>
     )
 }
+//Lấy state của redux
+const mapStateToProps = (state) => {
+    return {
+        dataAPI: state.data
+    }
+}
+//Tạo action để gọi đến redux
+const mapDispatchToProps = (dispatch) => {
+    return {
+        updateData: (input) => dispatch({ type: 'UPDATE_DATA', payload: input })
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
