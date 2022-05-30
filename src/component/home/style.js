@@ -35,12 +35,15 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
+        flexDirection: 'row',
         backgroundColor: '#fff',
         borderRadius: 10,
         borderWidth: 2,
         borderColor: color.primary,
         paddingLeft: 8,
-        justifyContent: 'center'
+        justifyContent:'flex-start',
+        alignItems: 'center',
+
     },
     filter: {
         padding: 15,

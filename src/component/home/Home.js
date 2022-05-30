@@ -7,8 +7,10 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import color from '../../../asset/color/color';
 import { connect } from 'react-redux';
 import { useState, useEffect, useContext } from 'react';
-import { AuthorContext } from '../../App'
-import FormDate from './item/FormDate';
+import { AuthorContext } from '../../App';
+import FormFilter from './item/FormFilter';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 function getFormattedDate(date) {
@@ -25,24 +27,32 @@ function Home(props) {
     console.log(props.dataAPI);
     //Thông tin đăng nhập
     const author = useContext(AuthorContext);
-    //Lọc ngày bắt đầu
-    const [startDate, setStartDate] = useState(new Date(1970, 0, 18, 0, 0, 0));
-    //Ngày kết thúc
-    const [endDate, setEndDate] = useState(new Date(1970, 0, 19, 24, 0, 0));
     //Hiển thị ngày
-    const [showDate, setShowDate] = useState(false);
-    //Lọc giữa liệu
-    const [filter, setFilter] = useState(false)
+    const [showDate, setShowDate] = React.useState(false);
+    //Trạng thái
+    const [status, setStatus] = React.useState('start');
+
     //Dữ liệu gọi API
     const [datas, setDatas] = useState({
-        data1: [{
-            createUser: "Tôi là Quản lý sự cố",
-            departmentCode: "MAYK-000",
-            departmentName: "000",
-            id: "16085401907418"
-        }],
-        data2: props.dataAPI
+        data: props.dataAPI
     });
+
+    //Dữ liệu được hiển thị
+    const [displayData, setDisplayData] = React.useState({
+        data: props.dataAPI
+    })
+    //filter
+    const [filter, setFilter] = React.useState({
+        startDate: new Date(1970, 0, 18, 0, 0, 0),
+        endDate: new Date(1970, 0, 25, 0, 0, 0),
+        status: 3,
+        type: 2
+    })
+    const changeStatusFilter = (input) => {
+        setFilter(prev => ({...prev,status: input}))
+    }
+    //Hiển thị bảng lọc
+    const [showFilterTable, setShowFilterTable] = useState(false)
 
     useEffect(() => {
         if (author.author.access_token !== '') {
@@ -88,68 +98,128 @@ function Home(props) {
 
     useEffect(() => {
         setDatas(prev => ({
-            ...prev, data2: props.dataAPI
+            ...prev, data: props.dataAPI
         }))
     }, [props.dataAPI])
+
+    useEffect(() => {
+        let datafilter = {
+            data: props.dataAPI
+        }
+        if (filter.startDate !== undefined) {
+            let start = filter.startDate;
+            start.setHours(0)
+            datafilter.data = datafilter.data.filter(ele => {
+                return ele.reportTime >= start.getTime();
+            })
+        }
+        if (filter.endDate !== undefined) {
+            let end = filter.endDate;
+            end.setHours(23, 59);
+            datafilter.data = datafilter.data.filter(ele => {
+                return ele.reportTime <= end.getTime();
+            })
+        }
+        if (filter.status !== 3) {
+            let status = filter.status;
+            datafilter.data = datafilter.data.filter(ele => {
+                return Number(ele.status) === status;
+            })
+        }
+        if (filter.type !== 2) {
+            let type = filter.type;
+            datafilter.data = datafilter.data.filter(ele => {
+                return Number(ele.reportType) === type;
+            })
+        }
+        setDisplayData(datafilter);
+    }, [filter, props.dataAPI])
+
+    const changeDate = (event, selectedDate) => {
+        const currentDate = selectedDate;
+        setShowDate(false);
+        if (status === 'start')
+            setFilter(prev => ({
+                ...prev, startDate: new Date(currentDate)
+            }))
+        else setFilter(prev => ({
+            ...prev, endDate: new Date(currentDate)
+        }))
+    };
 
 
     return (
         <View style={styles.home}>
-            {showDate && <FormDate
-                startDate={startDate}
-                endDate={endDate}
-                setShowDate={setShowDate}
-                setStartDate={setStartDate}
-                setEndDate={setEndDate}
+            {showDate && status === 'start' && <DateTimePicker
+                testID="dateTimePicker"
+                value={filter.startDate}
+                mode='date'
+                is24Hour={true}
+                onChange={changeDate}
+            />}
+            {showDate && status === 'end' && <DateTimePicker
+                testID="dateTimePicker"
+                value={filter.endDate}
+                mode='date'
+                is24Hour={true}
+                onChange={changeDate}
+            />}
+            {showFilterTable && <FormFilter
+                setShowFilterTable={setShowFilterTable}
+                changeStatusFilter={changeStatusFilter}
+                unShow={() => setShowFilterTable(false)}
             />}
             <View style={styles.top}>
-                <TouchableOpacity
-                    style={styles.topcontent}
-                    onPress={() => setShowDate(true)}
-                >
-                    <View
-                        style={styles.input}
-                    >
-                        <Text>
-                            {getFormattedDate(startDate)} - {getFormattedDate(endDate)}
-                        </Text>
+                <View style={styles.topcontent} >
+                    <View style={styles.input} >
+                        <TouchableOpacity
+                            onPress={() => {
+                                setShowDate(true);
+                                setStatus('start');
+                            }}
+                        >
+                            <Text>
+                                {getFormattedDate(filter.startDate)}
+                            </Text>
+                        </TouchableOpacity>
+                        <Text>-</Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                setShowDate(true);
+                                setStatus('end');
+                            }}
+                        >
+                            <Text>
+                                {getFormattedDate(filter.endDate)}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                     <Icon
                         style={{ position: 'absolute', right: 30, top: 24 }}
                         name='calendar' size={24} color={color.primary}
                     />
-                </TouchableOpacity>
+                </View>
                 <TouchableOpacity
                     style={styles.filter}
-                    onPress={() => setFilter(!filter)}
+                    onPress={() => setShowFilterTable(true)}
                 >
                     <Icon name='filter' size={40} color={color.primary} />
                 </TouchableOpacity>
             </View>
             <View style={styles.body}>
                 <ScrollView style={styles.scrollview}>
-                    {filter ?
-                        datas.data2.filter((ele) => {
-                            return (startDate.getTime() < ele.reportTime &&
-                                ele.reportTime < endDate.getTime())
-                        }).map((ele, index) => {
-                            return <InfoItem
-                                key={index}
-                                reporterName={ele.reporterName}
-                                reportNo={ele.reportNo}
-                                detailDescription={ele.detailDescription}
-                                reportTime={ele.reportTime}
-                            />
-                        })
-                        : datas.data2.map((ele, index) => {
-                            return <InfoItem
-                                key={index}
-                                reporterName={ele.reporterName}
-                                reportNo={ele.reportNo}
-                                detailDescription={ele.detailDescription}
-                                reportTime={ele.reportTime}
-                            />
-                        })}
+                    {displayData.data.map((ele, index) => {
+                        return <InfoItem
+                            key={index}
+                            reporterName={ele.reporterName}
+                            reportNo={ele.reportNo}
+                            detailDescription={ele.detailDescription}
+                            reportTime={ele.reportTime}
+                            incidentObject={ele.incidentObject}
+                            status={ele.status}
+                            reportType={ele.reportType}
+                        />
+                    })}
                 </ScrollView>
             </View>
             <View style={styles.bottom}>

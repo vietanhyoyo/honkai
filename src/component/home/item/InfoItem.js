@@ -21,10 +21,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff'
 
     },
-    minitext: {
+    minitextYellow: {
         fontSize: 13,
         fontWeight: '700',
         color: color.yellow
+    },
+    minitextBlue: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: 'blue'
+    },
+    minitextGreen: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: 'green'
     },
     mayr: {
         fontWeight: '700',
@@ -67,6 +77,12 @@ function getFormattedDate(int) {
 
 export default function InfoItem(props) {
 
+    const showStatus = (status) => {
+        if (status === '1') return <Text style={styles.minitextGreen} color='green'>Mới</Text>
+        if (status === '0') return <Text style={styles.minitextYellow}>Phân tích</Text>
+        else return <Text style={styles.minitextBlue} color='blue'>Hoàn thành</Text>
+    }
+
     const date = props.reportTime !== undefined ? props.reportTime : 0;
 
     return (
@@ -77,7 +93,7 @@ export default function InfoItem(props) {
                         {props.reportNo !== undefined && props.reportNo}
                     </Text>
                     <View style={{ paddingHorizontal: 10 }}>
-                        <Text style={styles.minitext}>Phân tích</Text>
+                        {showStatus(props.status)}
                     </View>
                 </View>
                 <View>
