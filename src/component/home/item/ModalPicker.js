@@ -1,4 +1,5 @@
 import React from "react";
+import color from "../../../../asset/color/color";
 import {
     StyleSheet, Text, View,
     TouchableOpacity, Dimensions, ScrollView
@@ -23,7 +24,7 @@ const ModalPicker = (props) => {
                 key={index}
                 onPress={() => onPressItem(index)}
             >
-                <Text style={styles.text}>
+                <Text style={Number(props.status) === index ? styles.textChoose : styles.text}>
                     {item}
                 </Text>
             </TouchableOpacity>
@@ -62,6 +63,12 @@ const styles = StyleSheet.create({
         margin: 20,
         fontSize: 20,
         fontWeight: 'bold'
+    },
+    textChoose: {
+        margin: 20,
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: color.primary
     }
 })
 

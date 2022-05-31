@@ -29,14 +29,17 @@ export default function Login({ navigation }) {
             .then(json => {
                 //console.log(json);
                 if (json.status) {
-                    author.setAuthor({access_token: json.data.access_token})
+                    author.setAuthor({ access_token: json.data.access_token })
                     navigation.navigate('Home');
                 }
                 else {
                     alert('Tài khoản hoặc mật khẩu không đúng.')
                 }
             })
-            .catch(err => console.log(err));
+            .catch(err => { 
+                console.log(err);
+                navigation.navigate('ErrorPage')
+             });
     }
 
     const formValidate = (user, pass) => {

@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { useState, useEffect, useContext } from 'react';
 import { AuthorContext } from '../../App';
 import FormFilter from './item/FormFilter';
+import PageButtons from './PageButtons';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -24,18 +25,16 @@ function getFormattedDate(date) {
 
 function Home(props) {
 
-    console.log(props.dataAPI);
+    //Chuyễn trang
+    const [page, setPage] = React.useState('1')
     //Thông tin đăng nhập
     const author = useContext(AuthorContext);
     //Hiển thị ngày
     const [showDate, setShowDate] = React.useState(false);
     //Trạng thái
     const [status, setStatus] = React.useState('start');
-
-    //Dữ liệu gọi API
-    const [datas, setDatas] = useState({
-        data: props.dataAPI
-    });
+    //Show menu
+    const [displayMenu, setDisplayMenu] = React.useState(true);
 
     //Dữ liệu được hiển thị
     const [displayData, setDisplayData] = React.useState({
@@ -49,7 +48,10 @@ function Home(props) {
         type: 2
     })
     const changeStatusFilter = (input) => {
-        setFilter(prev => ({...prev,status: input}))
+        setFilter(prev => ({ ...prev, status: input }))
+    }
+    const changeTypeFilter = (input) => {
+        setFilter(prev => ({ ...prev, type: input }))
     }
     //Hiển thị bảng lọc
     const [showFilterTable, setShowFilterTable] = useState(false)
@@ -57,30 +59,10 @@ function Home(props) {
     useEffect(() => {
         if (author.author.access_token !== '') {
 
-            // fetch('https://qlsc.maysoft.io/server/api/getAllDepartments', {
-            //     method: "POST",
-            //     body: {
-            //         "mode": "formdata",
-            //         "formdata": []
-            //     },
-            //     headers: {
-            //         "Content-type": "application/json; charset=UTF-8",
-            //         'Authorization': 'Bearer ' + author.author.access_token,
-            //     }
-            // })
-            //     .then(response => response.json())
-            //     .then(json => {
-            //         setDatas(prev => ({
-            //             ...prev, data1: json.data.data
-            //         }))
-            //     })
-            //     .catch(err => console.log(err));
-
-
             fetch('https://qlsc.maysoft.io/server/api/getAllReports', {
                 method: "POST",
                 body: JSON.stringify({
-                    page: "1"
+                    page: page
                 }),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8",
@@ -94,13 +76,7 @@ function Home(props) {
                 })
                 .catch(err => console.log(err));
         }
-    }, [author.author.access_token]);
-
-    useEffect(() => {
-        setDatas(prev => ({
-            ...prev, data: props.dataAPI
-        }))
-    }, [props.dataAPI])
+    }, [author.author.access_token, page]);
 
     useEffect(() => {
         let datafilter = {
@@ -168,6 +144,9 @@ function Home(props) {
                 setShowFilterTable={setShowFilterTable}
                 changeStatusFilter={changeStatusFilter}
                 unShow={() => setShowFilterTable(false)}
+                changeTypeFilter={changeTypeFilter}
+                status={filter.status}
+                type={filter.type}
             />}
             <View style={styles.top}>
                 <View style={styles.topcontent} >
@@ -222,9 +201,13 @@ function Home(props) {
                     })}
                 </ScrollView>
             </View>
-            <View style={styles.bottom}>
+            {displayMenu && <View style={styles.bottom}>
+                <PageButtons
+                    page={page}
+                    changePage={(value) => setPage(value)}
+                />
                 <Menu />
-            </View>
+            </View>}
         </View>
     )
 }

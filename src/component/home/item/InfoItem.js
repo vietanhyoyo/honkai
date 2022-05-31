@@ -101,7 +101,7 @@ export default function InfoItem(props) {
                         {props.reportTime !== undefined && getFormattedDate(date)}
                     </Text>
                 </View>
-                <View><Text>Tự nguyện | Trang thiết bị/cơ sở hạ tầng</Text></View>
+                <View><Text>{props.reportType === '0' ? 'Tự nguyện' : 'Bắt buộc'} | Trang thiết bị/cơ sở hạ tầng</Text></View>
                 <View><Text>{props.reporterName !== undefined && props.reporterName}
                 </Text></View>
                 <View><Text>{props.detailDescription !== undefined && props.detailDescription}
