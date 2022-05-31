@@ -23,6 +23,8 @@ function getFormattedDate(date) {
     return day + "/" + month + "/" + year;
 }
 
+let valueScroll = 0;
+
 function Home(props) {
 
     //Chuyễn trang
@@ -123,6 +125,18 @@ function Home(props) {
         }))
     };
 
+    const scrollY = function (event) {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        if (offsetY < valueScroll) {
+            setDisplayMenu(true);
+            valueScroll = offsetY;
+        }
+        else {
+            setDisplayMenu(false);
+            valueScroll = offsetY;
+        }
+
+    }
 
     return (
         <View style={styles.home}>
@@ -161,7 +175,7 @@ function Home(props) {
                                 {getFormattedDate(filter.startDate)}
                             </Text>
                         </TouchableOpacity>
-                        <Text>-</Text>
+                        <Text>{' - '}</Text>
                         <TouchableOpacity
                             onPress={() => {
                                 setShowDate(true);
@@ -186,7 +200,9 @@ function Home(props) {
                 </TouchableOpacity>
             </View>
             <View style={styles.body}>
-                <ScrollView style={styles.scrollview}>
+                <ScrollView style={styles.scrollview}
+                    onScroll={e => scrollY(e)}
+                >
                     {displayData.data.map((ele, index) => {
                         return <InfoItem
                             key={index}
@@ -201,13 +217,13 @@ function Home(props) {
                     })}
                 </ScrollView>
             </View>
-            {displayMenu && <View style={styles.bottom}>
+            <View >
                 <PageButtons
                     page={page}
                     changePage={(value) => setPage(value)}
-                />
-                <Menu />
-            </View>}
+                />{displayMenu &&
+                    <View style={styles.bottom}><Menu /></View>}
+            </View>
         </View>
     )
 }
